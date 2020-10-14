@@ -1,6 +1,6 @@
 const state = () => ({
   isOpen: false,
-  activeLink: "levels",
+  activeLink: "levels"
 });
 
 const mutations = {
@@ -9,10 +9,10 @@ const mutations = {
   },
   toggleSidebar(state) {
     state.isOpen = !state.isOpen;
-  },
+  }
 };
 
 export default {
   state,
-  mutations,
+  mutations
 };
