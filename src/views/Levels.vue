@@ -1,5 +1,12 @@
 <template>
-  <div class="about">
-    <h1>This is an levels page</h1>
+  <div>
+    <RouteMenu title="Levels" />
   </div>
 </template>
+
+<script>
+import RouteMenu from "../components/RouteMenu";
+export default {
+  components: { RouteMenu },
+};
+</script>
