@@ -8,29 +8,27 @@ const routes = [
   {
     path: "/",
     name: "Levels1",
-    component: Levels
+    component: Levels,
   },
   {
     path: "/levels",
     name: "Levels",
-    component: Levels
+    component: Levels,
   },
   {
     path: "/profile",
     name: "Profile",
-    component: () =>
-      import(/* webpackChunkName: "profile" */ "../views/Profile.vue")
+    component: () => import(/* webpackChunkName: "profile" */ "../views/Profile.vue"),
   },
   {
     path: "/about",
     name: "About",
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/About.vue")
-  }
+    component: () => import(/* webpackChunkName: "about" */ "../views/About.vue"),
+  },
 ];
 
 const router = new VueRouter({
-  routes
+  routes,
 });
 
 export default router;
