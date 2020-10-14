@@ -7,22 +7,21 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    name: "Levels1",
-    component: Levels,
+    redirect: { name: "levels" },
   },
   {
     path: "/levels",
-    name: "Levels",
+    name: "levels",
     component: Levels,
   },
   {
     path: "/profile",
-    name: "Profile",
+    name: "profile",
     component: () => import(/* webpackChunkName: "profile" */ "../views/Profile.vue"),
   },
   {
     path: "/about",
-    name: "About",
+    name: "about",
     component: () => import(/* webpackChunkName: "about" */ "../views/About.vue"),
   },
 ];

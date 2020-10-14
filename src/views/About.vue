@@ -1,5 +1,21 @@
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
+  <div>
+    <RouteMenu title="About" />
+    <p>Swag-Gp is a solution to the personalized storage of grades</p>
+
+    <h3>Privacy policy</h3>
+    <p>We won't steal your data</p>
+
+    <h3>Contact</h3>
+    <ContactForm />
   </div>
 </template>
+
+<script>
+import RouteMenu from "../components/RouteMenu";
+import ContactForm from "../components/ContactForm";
+
+export default {
+  components: { RouteMenu, ContactForm },
+};
+</script>
