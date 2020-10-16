@@ -1,7 +1,6 @@
 <template>
   <v-navigation-drawer class="navbar" absolute v-model="drawer" :mini-variant.sync="mini" permanent>
     <div class="pl-4 d-flex">
-      <!-- <v-icon @click="toggleSidebar()" color="white"> -->
       <v-icon @click.stop="mini = !mini" color="white">
         mdi-menu
       </v-icon>
@@ -27,7 +26,7 @@
         </v-list-item>
       </v-list>
 
-      <v-list class="my-7" dense>
+      <v-list v-if="authenticated" class="my-7" dense>
         <v-list-item>
           <v-list-item-icon>
             <v-icon color="white">mdi-logout</v-icon>
@@ -42,22 +41,28 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 export default {
   name: "Drawer",
-  computed: mapState({
-    sidebarOpen: (state) => state.sidebar.isOpen,
-  }),
-  props: ["toggleMin"],
+  computed: {
+    links() {
+      const baselinks = [
+        { title: "Levels", location: "/levels", icon: "mdi-poll" },
+        { title: "About", location: "/about", icon: "mdi-information-outline" },
+        { title: "Settings", location: "/settings", icon: "mdi-cog-outline" },
+      ];
+      return this.authenticated
+        ? [...baselinks, { title: "Profile", location: "/profile", icon: "mdi-account-outline" }]
+        : baselinks;
+    },
+    authenticated() {
+      return this.$store.state.authenticated;
+    },
+  },
+  props: ["isMini"],
   data() {
     return {
+      mini: this.$props.isMini,
       drawer: true,
-      mini: true,
-      links: [
-        { title: "Levels", location: "/levels", icon: "mdi-poll" },
-        { title: "Profile", location: "/profile", icon: "mdi-account-outline" },
-        { title: "About", location: "/about", icon: "mdi-information-outline" },
-      ],
     };
   },
   watch: {
@@ -74,6 +79,7 @@ export default {
   box-shadow: 3px 0px 2px 1px rgba(0, 0, 0, 0.1);
   padding-top: 1.5rem;
   height: 100vh !important;
+  position: fixed;
 }
 .navbar-width {
   width: 200px;

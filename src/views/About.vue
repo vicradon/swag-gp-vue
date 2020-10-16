@@ -7,6 +7,7 @@
     <p>We won't steal your data</p>
 
     <h3>Contact</h3>
+    {{ `${authenticated}` }}
     <ContactForm />
   </div>
 </template>
@@ -17,5 +18,10 @@ import ContactForm from "../components/ContactForm";
 
 export default {
   components: { RouteMenu, ContactForm },
+  computed: {
+    authenticated() {
+      return this.$store.state.authenticated;
+    },
+  },
 };
 </script>

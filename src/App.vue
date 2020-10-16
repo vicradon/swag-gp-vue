@@ -10,6 +10,7 @@
 
 <script>
 import dashboard from "./layout/dashboard";
+import { query as q, Client } from "faunadb";
 
 export default {
   name: "App",
@@ -21,5 +22,19 @@ export default {
   data: () => ({
     //
   }),
+
+  created() {
+    const client = new Client({
+      secret: localStorage.getItem("db_secret"),
+    });
+    client
+      .query(q.Select(["ref", "id"], q.Get(q.Ref(q.Collection("Users"), "279519516000518663"))))
+      .then(() => {
+        this.$store.commit("setAuthenticated", true);
+      })
+      .catch(() => {
+        this.$store.commit("setAuthenticated", false);
+      });
+  },
 };
 </script>
