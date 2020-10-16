@@ -25,7 +25,7 @@ export default {
 
   created() {
     const client = new Client({
-      secret: localStorage.getItem("db_secret") || "fnED4RPNxxACBQPg791vEAIFA4_McjKSHlgniRdMC8fYf0L-ILg",
+      secret: localStorage.getItem("db_secret"),
     });
     client
       .query(q.Select(["ref", "id"], q.Get(q.Ref(q.Collection("Users"), "279519516000518663"))))
