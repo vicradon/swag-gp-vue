@@ -7,7 +7,6 @@
     <p>We won't steal your data</p>
 
     <h3>Contact</h3>
-    {{ `${authenticated}` }}
     <ContactForm />
   </div>
 </template>
