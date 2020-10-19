@@ -4,7 +4,7 @@
       <p class="mb-0" v-bind="attrs" v-on="on"><slot></slot></p>
     </template>
     <v-card v-if="dialogType === 'login'">
-      <form @submit.prevent="login">
+      <v-form v-model="loginValid" ref="login" @submit.prevent="login" lazy-validation>
         <v-card-title>
           <span class="headline">Login</span>
         </v-card-title>
@@ -12,10 +12,21 @@
           <v-container>
             <v-row>
               <v-col cols="12">
-                <v-text-field label="Email" required></v-text-field>
+                <v-text-field
+                  :rules="[(v) => !!v || 'Email is required']"
+                  v-model="loginForm.email"
+                  label="Email"
+                  required
+                ></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field label="Password" type="password" required></v-text-field>
+                <v-text-field
+                  :rules="[(v) => !!v || 'Password is required']"
+                  label="Password"
+                  v-model="loginForm.password"
+                  type="password"
+                  required
+                ></v-text-field>
               </v-col>
             </v-row>
             <p>
@@ -26,73 +37,102 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn type="submit" color="primary darken-1" text>
+          <v-btn :loading="loading" :disabled="!loginValid" type="submit" color="primary darken-1">
             Login
           </v-btn>
         </v-card-actions>
-      </form>
+      </v-form>
     </v-card>
     <v-card v-if="dialogType === 'signup'">
-      <v-card-title>
-        <span class="headline">Sign up</span>
-      </v-card-title>
-      <v-card-text>
-        <v-container>
-          <v-row>
-            <v-col cols="12" sm="6">
-              <v-text-field label="First name *" required></v-text-field>
-            </v-col>
+      <v-form v-model="signupValid" ref="signup" @submit.prevent="signup">
+        <v-card-title>
+          <span class="headline">Sign up</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12" sm="6">
+                <v-text-field label="First name *" required></v-text-field>
+              </v-col>
 
-            <v-col cols="12" sm="6">
-              <v-text-field label="Last name *" persistent-hint required></v-text-field>
-            </v-col>
-            <v-col cols="12">
-              <v-text-field label="Email *" required></v-text-field>
-            </v-col>
-            <v-col cols="12">
-              <v-text-field label="Password *" type="password" required></v-text-field>
-            </v-col>
-          </v-row>
-          <p>
-            Already have an account?
-            <span @click="dialogType = 'login'" class="cursor-pointer primary--text" text>Login instead</span>
-          </p>
-        </v-container>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="primary darken-1" text @click="dialog = false">
-          Signup
-        </v-btn>
-      </v-card-actions>
+              <v-col cols="12" sm="6">
+                <v-text-field label="Last name *" persistent-hint required></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field label="Email *" required></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field label="Password *" type="password" required></v-text-field>
+              </v-col>
+            </v-row>
+            <p>
+              Already have an account?
+              <span @click="dialogType = 'login'" class="cursor-pointer primary--text" text>Login instead</span>
+            </p>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn :disabled="!signupValid" type="submit" color="primary darken-1">
+            Signup
+          </v-btn>
+        </v-card-actions>
+      </v-form>
+
+      <v-snackbar v-model="snackbar" :timeout="timeout">
+        {{ error }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
     </v-card>
   </v-dialog>
 </template>
 <script>
-import { query as q, Client } from "faunadb";
-
 export default {
   props: ["dialogState"],
   data() {
     return {
-      // loading: false,
+      loading: false,
       dialogType: "login",
       dialog: this.dialogState,
+      loginValid: true,
+      signupValid: true,
+      loginForm: {
+        email: "test@email.com",
+        password: "Test1234",
+      },
+      error: "",
+      snackbar: false,
+      timeout: 2000,
     };
   },
   methods: {
     async login() {
       this.loading = true;
-      const client = new Client({ secret: localStorage.getItem("DB_SECRET") });
-      client
-        .query(q.Login(q.Get(q.Identity()), { ttl: q.TimeAdd(q.Now(), 1, "day") }))
-        .then(function() {
+      this.$refs.login.validate();
+
+      fetch("https://swag-gp-functions.azurewebsites.net/api/login", {
+        method: "POST",
+        body: JSON.stringify({ email: this.loginForm.email, password: this.loginForm.password }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          localStorage.setItem("DB_SECRET", data.secret);
           this.$store.commit("setAuthenticated", true);
+          this.$store.commit("setUser", data.user);
           this.loading = false;
         })
-        .catch(() => {
+        .catch((error) => {
           this.$store.commit("setAuthenticated", false);
           this.loading = false;
+          this.error = error.message;
         });
     },
   },

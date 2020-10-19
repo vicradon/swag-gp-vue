@@ -9,7 +9,7 @@
         <div v-if="authenticated" class="px-3">
           <router-link class="text-decoration-none text--black" to="/profile">Profile</router-link>
         </div>
-        <v-btn v-if="authenticated" text>
+        <v-btn @click="logout()" v-if="authenticated" text>
           <v-icon left>mdi-logout</v-icon>
           <span class="body-2">Logout</span>
         </v-btn>
@@ -21,6 +21,16 @@
         </v-btn>
       </v-list>
     </v-menu>
+
+    <v-snackbar v-model="snackbar" :timeout="timeout">
+      {{ error }}
+
+      <template v-slot:action="{ attrs }">
+        <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -31,9 +41,23 @@ export default {
   name: "RouteMenu",
   props: ["title"],
   components: { AuthModal },
+  data: () => ({
+    snackbar: false,
+    error: "",
+    loading: "",
+    timeout: 2000,
+  }),
   computed: {
     authenticated() {
       return this.$store.state.authenticated;
+    },
+  },
+  methods: {
+    async logout() {
+      this.$store.dispatch("logout").catch(function(message) {
+        this.snackbar = true;
+        this.error = message;
+      });
     },
   },
 };

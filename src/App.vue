@@ -25,10 +25,10 @@ export default {
 
   created() {
     const client = new Client({
-      secret: localStorage.getItem("db_secret"),
+      secret: localStorage.getItem("DB_SECRET"),
     });
     client
-      .query(q.Select(["ref", "id"], q.Get(q.Ref(q.Collection("Users"), "279519516000518663"))))
+      .query(q.Select(["ref", "id"], q.Get(q.Identity())))
       .then(() => {
         this.$store.commit("setAuthenticated", true);
       })

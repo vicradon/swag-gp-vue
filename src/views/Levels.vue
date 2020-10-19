@@ -4,14 +4,23 @@
 
     <v-row class="mt-4" align="baseline">
       <v-col class="d-flex justify-space-between" sm="6">
-        <v-select value="300" :items="levels" label="Select level" dense outlined> </v-select>
+        <v-select
+          :value="selectedLevel"
+          :hint="levelSelectHint"
+          :items="levels"
+          label="Select level"
+          dense
+          outlined
+          @change="handleLevelChange"
+        >
+        </v-select>
       </v-col>
       <v-col class="text-end" sm="6">
         <p>CGPA: 3.5</p>
       </v-col>
     </v-row>
 
-    <v-btn-toggle color="primary" class="mb-5" v-model="selectedSemester" rounded>
+    <v-btn-toggle color="primary darken-1" class="mb-5" v-model="selectedSemester" rounded mandatory>
       <v-btn>
         <span class="caption">
           Semester 1
@@ -43,14 +52,50 @@
 </template>
 
 <script>
+import { query as q, Client } from "faunadb";
+import { mapState } from "vuex";
+const client = new Client({ secret: localStorage.getItem("DB_SECRET") });
 import RouteMenu from "../components/RouteMenu";
 
 import CourseTable from "../components/CourseTable";
 export default {
   components: { RouteMenu, CourseTable },
-  data: () => ({
-    levels: ["100", "200", "300"],
-    selectedSemester: 0,
-  }),
+  data() {
+    return {
+      levels: ["100", "200", "300"],
+    };
+  },
+  computed: {
+    levelSelectHint() {
+      return this.$store.state.authenticated
+        ? "change your level in profile to add new level"
+        : "create an account to add a new level";
+    },
+    selectedSemester: {
+      get() {
+        return this.$store.state.levels.misc.selected_level.selected_semester;
+      },
+      set() {
+        // console.log(val);
+        console.log(this.$store.state.levels.misc.selected_level.selected_semester);
+
+        // this.$store.commit("someaction");
+      },
+    },
+
+    ...mapState({
+      selectedLevel: (state) => state.levels.misc.selected_level.value,
+    }),
+  },
+  methods: {
+    async handleLevelChange(level) {
+      try {
+        const newLevel = client.query(q.Get(q.Identity(level)));
+        return newLevel;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  },
 };
 </script>
