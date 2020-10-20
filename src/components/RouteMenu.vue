@@ -54,9 +54,9 @@ export default {
   },
   methods: {
     async logout() {
-      this.$store.dispatch("logout").catch(function(message) {
+      this.$store.dispatch("logout").catch((error) => {
         this.snackbar = true;
-        this.error = message;
+        this.error = error;
       });
     },
   },

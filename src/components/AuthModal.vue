@@ -52,17 +52,38 @@
           <v-container>
             <v-row>
               <v-col cols="12" sm="6">
-                <v-text-field label="First name *" required></v-text-field>
+                <v-text-field
+                  :rules="[(v) => !!v || 'First name is required']"
+                  v-model="signupForm.firstName"
+                  label="First name *"
+                  required
+                ></v-text-field>
               </v-col>
 
               <v-col cols="12" sm="6">
-                <v-text-field label="Last name *" persistent-hint required></v-text-field>
+                <v-text-field
+                  :rules="[(v) => !!v || 'Last name is required']"
+                  v-model="signupForm.lastName"
+                  label="Last name *"
+                  required
+                ></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field label="Email *" required></v-text-field>
+                <v-text-field
+                  :rules="[(v) => !!v || 'Email is required']"
+                  v-model="signupForm.email"
+                  label="Email *"
+                  required
+                ></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field label="Password *" type="password" required></v-text-field>
+                <v-text-field
+                  :rules="[(v) => !!v || 'Password is required']"
+                  v-model="signupForm.password"
+                  label="Password *"
+                  type="password"
+                  required
+                ></v-text-field>
               </v-col>
             </v-row>
             <p>
@@ -73,7 +94,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn :disabled="!signupValid" type="submit" color="primary darken-1">
+          <v-btn :loading="loading" :disabled="!signupValid" type="submit" color="primary darken-1">
             Signup
           </v-btn>
         </v-card-actions>
@@ -105,6 +126,12 @@ export default {
         email: "test@email.com",
         password: "Test1234",
       },
+      signupForm: {
+        firstName: "Some",
+        lastName: "Name",
+        email: "test@email.com",
+        password: "Test1234",
+      },
       error: "",
       snackbar: false,
       timeout: 2000,
@@ -126,7 +153,38 @@ export default {
         .then((data) => {
           localStorage.setItem("DB_SECRET", data.secret);
           this.$store.commit("setAuthenticated", true);
-          this.$store.commit("setUser", data.user);
+          this.$store.commit("setAppState", data.user.data);
+          this.loading = false;
+        })
+        .catch((error) => {
+          this.$store.commit("setAuthenticated", false);
+          this.loading = false;
+          this.error = error.message;
+        });
+    },
+    async signup() {
+      this.loading = true;
+      this.$refs.signup.validate();
+
+      fetch("https://swag-gp-functions.azurewebsites.net/api/signup", {
+        // fetch("http://localhost:7071/api/signup", {
+        method: "POST",
+        cors: "no-cors",
+        body: JSON.stringify({
+          firstName: this.signupForm.firstName,
+          lastName: this.signupForm.lastName,
+          email: this.signupForm.email,
+          password: this.signupForm.password,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      })
+        .then((res) => res.json())
+        .then(({ credentials }) => {
+          localStorage.setItem("DB_SECRET", credentials.secret);
+          this.$store.commit("setAuthenticated", true);
+          this.$store.dispatch("initialStateSync");
           this.loading = false;
         })
         .catch((error) => {
