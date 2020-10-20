@@ -28,12 +28,14 @@ export default {
       secret: localStorage.getItem("DB_SECRET"),
     });
     client
-      .query(q.Select(["ref", "id"], q.Get(q.Identity())))
-      .then(() => {
+      .query(q.Get(q.Identity()))
+      .then((user) => {
         this.$store.commit("setAuthenticated", true);
+        this.$store.commit("setAppState", user.data);
       })
       .catch(() => {
         this.$store.commit("setAuthenticated", false);
+        this.$store.commit("setAppState", JSON.parse(localStorage.getItem("app-state")));
       });
   },
 };

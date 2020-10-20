@@ -1,56 +1,18 @@
-# swag-gp
-
-## Todo
-
-add mobile bottom bav
-add component content
+# Swag-GP
 
 You can't delete 500 level if you have data in 600 level
 
-```
-data: {
-    levels: {
-        misc: {
-            selected_level: {
-                value: 300,
-                selected_semester: 1
-            },
-        },
-        years: [
-            {
-                level: 100,
-                semesters: [
-                    {
-                        id: 1,
-                        courses: [
-                            {
-                                id: 284822,
-                                title: 'Some course',
-                                course_code: 'SOM 224',
-                                grade: A,
-                                credit_load: 2
-                            }
-                        ],
-                        cumulative: {
-                            course_count: 9,
-                            total_units: 20,
-                            total_grade_point: 23,
-                            grade_point_average: 12
-                        }
-                    }
-                ],
-                cumulative: {
-                    course_count: 9,
-                    total_units: 20,
-                    total_grade_point: 23,
-                    grade_point_average: 12
-                }
-            }
-        ],
-        cumulative: {
+1. Make level select component work
+2. Change the
+   table params to reflect the app
+3. Change the content of the add course modal to reflect the app
+4. Change content of
+   edit modal
+5. Change content of delete modal
+6. Add interactivity to summary component
+7. Let table component load the
+   active level
 
-        },
-    },
-}
+Not working yet
 
-```
+1. State sync

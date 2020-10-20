@@ -2,8 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import VuexPersist from "vuex-persist";
 import { query as q, Client } from "faunadb";
-import sidebar from "./modules/sidebar";
-import levels from "./modules/levels";
+import levels, { initialLevelsState } from "./modules/levels";
 
 const vuexPersist = new VuexPersist({
   key: "app-state",
@@ -19,19 +18,15 @@ export default new Vuex.Store({
       settings: {
         showCgpa: false,
       },
-      user: {
-        firstName: "",
-        lastName: "",
-        email: "",
-      },
     };
   },
   actions: {
     async logout({ commit }) {
+      const client = new Client({
+        secret: localStorage.getItem("DB_SECRET"),
+      });
+
       return new Promise((resolve, reject) => {
-        const client = new Client({
-          secret: localStorage.getItem("DB_SECRET"),
-        });
         client
           .query(q.Logout(true))
           .then(() => {
@@ -46,13 +41,47 @@ export default new Vuex.Store({
       if (!state.authenticated) {
         commit("toggleCgpaVisibility");
       } else {
-        commit("toggleCgpaVisibility");
+        const client = new Client({
+          secret: localStorage.getItem("DB_SECRET"),
+        });
+        client
+          .query(
+            q.Update(q.Identity(), {
+              data: { settings: { showCgpa: !state.settings.showCgpa } },
+            }),
+          )
+          .then(() => {
+            commit("toggleCgpaVisibility");
+          });
       }
+    },
+    async initialStateSync({ state }) {
+      const client = new Client({
+        secret: localStorage.getItem("DB_SECRET"),
+      });
+
+      return new Promise((reject) => {
+        client
+          .query(
+            q.Update(q.Identity(), {
+              data: {
+                ...state,
+                levels: initialLevelsState,
+              },
+            }),
+          )
+          // .then((user) => localStorage.setItem("app-state", JSON.stringify(user.data)))
+          .catch(({ message }) => reject(message));
+      });
     },
   },
   mutations: {
     setAuthenticated(state, val) {
       state.authenticated = val;
+    },
+    setAppState(state, value) {
+      Vue.set(state, "levels", value.levels);
+      Vue.set(state, "settings", value.settings);
     },
     setUser(state, user) {
       state.user = {
@@ -66,7 +95,6 @@ export default new Vuex.Store({
     },
   },
   modules: {
-    sidebar,
     levels,
   },
 });

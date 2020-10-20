@@ -26,7 +26,6 @@
 
 <script>
 import { query as q, Client } from "faunadb";
-const client = new Client({ secret: localStorage.getItem("DB_SECRET") });
 
 export default {
   data() {
@@ -34,10 +33,9 @@ export default {
       snackbar: false,
       timeout: 2000,
       valid: true,
-      user: this.$store.state.user,
-      firstName: this.$store.state.user.firstName,
-      lastName: this.$store.state.user.lastName,
-      email: this.$store.state.user.email,
+      firstName: "",
+      lastName: "",
+      email: "",
       school: "",
       nameRules: [(v) => !!v || "Name is required"],
       emailRules: [(v) => !!v || "E-mail is required", (v) => /.+@.+\..+/.test(v) || "E-mail must be valid"],
@@ -55,6 +53,8 @@ export default {
       this.level = level;
     },
     update() {
+      const client = new Client({ secret: localStorage.getItem("DB_SECRET") });
+
       this.$refs.form.validate();
       client
         .query(
@@ -73,11 +73,14 @@ export default {
           this.snackbarValue = "profile updated successfully";
         })
         .catch(({ message }) => {
+          this.$store.commit("setAuthenticated", false);
           this.snackbarValue = message;
         });
     },
   },
   created() {
+    const client = new Client({ secret: localStorage.getItem("DB_SECRET") });
+
     client
       .query(
         q.Let(
@@ -88,8 +91,8 @@ export default {
             firstName: q.Select(["data", "firstName"], q.Var("user")),
             lastName: q.Select(["data", "lastName"], q.Var("user")),
             email: q.Select(["data", "email"], q.Var("user")),
-            school: q.Select(["data", "school"], q.Var("user")),
-            level: q.Select(["data", "level"], q.Var("user")),
+            school: q.Select(["data", "school"], q.Var("user"), ""),
+            level: q.Select(["data", "level"], q.Var("user"), ""),
           },
         ),
       )
@@ -100,7 +103,10 @@ export default {
         this.school = data.school;
         this.level = data.level;
       })
-      .catch(({ message }) => (this.snackbarValue = message));
+      .catch((error) => {
+        this.snackbarValue = error;
+        this.$store.commit("setAuthenticated", false);
+      });
   },
 };
 </script>

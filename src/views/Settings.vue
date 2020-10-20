@@ -1,7 +1,6 @@
 <template>
   <div>
     <RouteMenu title="Settings" />
-
     <v-switch v-model="showCgpa" label="Show CGPA"></v-switch>
   </div>
 </template>

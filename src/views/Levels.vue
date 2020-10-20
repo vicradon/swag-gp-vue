@@ -4,15 +4,7 @@
 
     <v-row class="mt-4" align="baseline">
       <v-col class="d-flex justify-space-between" sm="6">
-        <v-select
-          :value="selectedLevel"
-          :hint="levelSelectHint"
-          :items="levels"
-          label="Select level"
-          dense
-          outlined
-          @change="handleLevelChange"
-        >
+        <v-select v-model="selectedLevel" :hint="levelSelectHint" :items="levels" label="Select level" dense outlined>
         </v-select>
       </v-col>
       <v-col class="text-end" sm="6">
@@ -75,17 +67,19 @@ export default {
       get() {
         return this.$store.state.levels.misc.selected_level.selected_semester;
       },
-      set() {
-        // console.log(val);
-        console.log(this.$store.state.levels.misc.selected_level.selected_semester);
-
-        // this.$store.commit("someaction");
+      set(semester) {
+        this.$store.dispatch("selectActiveLevelOrSemester", { field: "selected_semester", value: semester });
       },
     },
-
-    ...mapState({
-      selectedLevel: (state) => state.levels.misc.selected_level.value,
-    }),
+    selectedLevel: {
+      get() {
+        return this.$store.state.levels.misc.selected_level.value;
+      },
+      set(level) {
+        this.$store.dispatch("selectActiveLevelOrSemester", { field: "value", value: level });
+      },
+    },
+    ...mapState({}),
   },
   methods: {
     async handleLevelChange(level) {
